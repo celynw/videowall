@@ -13,15 +13,25 @@ def parse_args():
 
 
 #===================================================================================================
-def main(*args):
+def get_files(*args):
 	args = dict(args)
 	root = Path(args["root"])
 	if not root.exists():
 		print("Directory '{}' not found".format(root))
-		return
+		quit(1)
+
+	filetypes = [
+			"*.mp4",
+			"*.webm"]
+	allFiles = []
+	for filetype in filetypes:
+		files = root.glob(filetype)
+		allFiles.extend(files)
+
+	return allFiles
 
 
 #===================================================================================================
 if (__name__=="__main__"):
 	args = parse_args()
-	main(*args._get_kwargs())
+	files = get_files(*args._get_kwargs())
