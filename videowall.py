@@ -32,6 +32,30 @@ def get_files(*args):
 
 
 #===================================================================================================
+def play_videos(files):
+	caps = [cv2.VideoCapture(str(i)) for i in files]
+
+	frames = [None] * len(files)
+	retvals = [None] * len(files)
+
+	while True:
+		for (i, cap) in enumerate(caps):
+			if (cap):
+				retvals[i], frames[i] = cap.read()
+		for (i, frame) in enumerate(frames):
+			if (retvals[i]):
+				cv2.imshow(str(files[i]), frames[i])
+		if (cv2.waitKey(1) & 0xFF == ord('q')):
+			break
+	for cap in caps:
+		if (cap):
+			cap.release()
+
+	cv2.destroyAllWindows()
+
+#===================================================================================================
 if (__name__=="__main__"):
 	args = parse_args()
 	files = get_files(*args._get_kwargs())
+	files = files[:2] # DEBUG
+	play_videos(files)
