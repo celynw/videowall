@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 from argparse import ArgumentParser
-import numpy as np
-import cv2
 from pathlib import Path
+import cv2
+from screeninfo import get_monitors
+from PIL import Image, ImageOps
+import numpy as np
 
 #===================================================================================================
 def parse_args():
@@ -33,6 +35,9 @@ def get_files(*args):
 
 #===================================================================================================
 def play_videos(files):
+	windowName = "Video Wall"
+	window = cv2.namedWindow(windowName, cv2.WND_PROP_FULLSCREEN)
+	cv2.setWindowProperty(windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 	caps = [cv2.VideoCapture(str(i)) for i in files]
 
 	frames = [None] * len(files)
@@ -42,9 +47,7 @@ def play_videos(files):
 		for (i, cap) in enumerate(caps):
 			if (cap):
 				retvals[i], frames[i] = cap.read()
-		for (i, frame) in enumerate(frames):
-			if (retvals[i]):
-				cv2.imshow(str(files[i]), frames[i])
+		show_combined_frames(windowName, frames)
 		if (cv2.waitKey(1) & 0xFF == ord('q')):
 			break
 	for cap in caps:
@@ -52,6 +55,29 @@ def play_videos(files):
 			cap.release()
 
 	cv2.destroyAllWindows()
+
+
+#===================================================================================================
+def show_combined_frames(windowName, frames):
+	"""
+	Will run on main display
+	"""
+	# TODO run once only
+	m = get_monitors()[0]
+	desktopSize = (m.width, m.height)
+
+	# Scale/crop frames so they all match exactly
+	targetW = desktopSize[0] // len(frames)
+	targetH = desktopSize[1]
+
+	imgs = [None] * len(frames)
+	for i, frame in enumerate(frames):
+		img = Image.fromarray(frame)
+		imgs[i] = ImageOps.fit(img, (targetW, targetH), method=Image.LANCZOS)
+
+	combined = np.hstack(imgs)
+	cv2.imshow(windowName, combined)
+
 
 #===================================================================================================
 if (__name__=="__main__"):
