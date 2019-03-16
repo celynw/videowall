@@ -38,26 +38,25 @@ def get_files(*args):
 
 #===================================================================================================
 def play_videos(files, dimensions):
-	# Randomise
-	numToLoad = min(len(files), (args.w * args.h))
-	files = files[:numToLoad]
-	shuffle(files)
-
 	windowName = "Video Wall"
 	window = cv2.namedWindow(windowName, cv2.WND_PROP_FULLSCREEN)
 	cv2.setWindowProperty(windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
 	while True:
+		# Randomise on each iteration
 		shuffle(files)
-		caps = [cv2.VideoCapture(str(i)) for i in files]
+		caps = [None] * (dimensions[0] * dimensions[1])
+		frames = [None] * len(caps)
+		retvals = [None] * len(caps)
 
-		frames = [None] * (dimensions[0] * dimensions[1])
-		retvals = [None] * len(files)
+		for i in range(0, min(len(files), len(caps))):
+			caps[i] = cv2.VideoCapture(str(files[i]))
 
 		while True:
 			for (i, cap) in enumerate(caps):
 				if (cap):
 					retvals[i], frames[i] = cap.read()
+			# TODO replace with range
 			frames = [np.zeros((1920, 1080, 3), dtype="uint8") if frame is None else frame for frame in frames]
 			show_combined_frames(windowName, dimensions, frames)
 
