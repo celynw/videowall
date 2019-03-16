@@ -46,24 +46,28 @@ def play_videos(files, dimensions):
 	windowName = "Video Wall"
 	window = cv2.namedWindow(windowName, cv2.WND_PROP_FULLSCREEN)
 	cv2.setWindowProperty(windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-	caps = [cv2.VideoCapture(str(i)) for i in files]
-
-	frames = [None] * (dimensions[0] * dimensions[1])
-	retvals = [None] * len(files)
 
 	while True:
-		for (i, cap) in enumerate(caps):
-			if (cap):
-				retvals[i], frames[i] = cap.read()
-		frames = [np.zeros((1920, 1080, 3), dtype="uint8") if frame is None else frame for frame in frames]
-		show_combined_frames(windowName, dimensions, frames)
-		if (cv2.waitKey(1) & 0xFF == ord('q')):
-			break
-	for cap in caps:
-		if (cap):
-			cap.release()
+		shuffle(files)
+		caps = [cv2.VideoCapture(str(i)) for i in files]
 
-	cv2.destroyAllWindows()
+		frames = [None] * (dimensions[0] * dimensions[1])
+		retvals = [None] * len(files)
+
+		while True:
+			for (i, cap) in enumerate(caps):
+				if (cap):
+					retvals[i], frames[i] = cap.read()
+			frames = [np.zeros((1920, 1080, 3), dtype="uint8") if frame is None else frame for frame in frames]
+			show_combined_frames(windowName, dimensions, frames)
+
+			key = cv2.waitKey(1)
+			if (key == ord('q')):
+				finish(caps)
+			elif (key == ord('r')):
+				break
+
+	finish(ok=False)
 
 
 #===================================================================================================
@@ -98,6 +102,16 @@ def show_combined_frames(windowName, dimensions, frames):
 def chunks(list, numElements):
 	for i in range(0, len(list), numElements):
 		yield list[i:i + numElements]
+
+
+#===================================================================================================
+def finish(caps=None, ok=True):
+	if (caps):
+		for cap in caps:
+			if (cap):
+				cap.release()
+	cv2.destroyAllWindows()
+	quit(ok)
 
 
 #===================================================================================================
