@@ -7,9 +7,6 @@ from threading import Thread
 import sys
 import time
 import cv2
-# from queue import Queue
-# import imutils
-# from imutils.video import FPS
 from screeninfo import get_monitors
 from PIL import Image, ImageOps
 import numpy as np
@@ -55,40 +52,20 @@ def play_videos(files, dimensions):
 		shuffle(files)
 		caps = [None] * (dimensions[0] * dimensions[1])
 		frames = [None] * len(caps)
-		# retvals = [None] * len(caps)
 		lastFrames = [time.time()] * len(caps)
 
 		for i in range(0, min(len(files), len(caps))):
-			# caps[i] = cv2.VideoCapture(str(files[i]))
 			caps[i] = FileVideoStream(str(files[i]), queueSize=800).start()
-
 		time.sleep(1)
-
 
 		while True:
 			for (i, cap) in enumerate(caps):
 				if (cap):
-					# retvals[i], frames[i] = cap.read()
-					if cap.more():
-						# grab the frame from the threaded video file stream, resize
-						# it, and convert it to grayscale (while still retaining 3
-						# channels)
+					if (cap.more()):
 						if ((time.time() - lastFrames[i]) < cap.frameTime):
 							continue
 						frames[i] = cap.read()
 						lastFrames[i] = time.time()
-
-						# frames[i] = imutils.resize(frames[i], width=450)
-
-						# display the size of the queue on the frame
-						# cv2.putText(frames[i], "Queue Size: {}".format(cap.Q.qsize()),
-						# 	(10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-
-						# show the frame and update the FPS counter
-						# cv2.imshow("Frame", frames[i])
-						# cv2.waitKey(1)
-						# fps.update()
-
 			# TODO replace with range
 			frames = [np.zeros((1920, 1080, 3), dtype="uint8") if frame is None else frame for frame in frames]
 			show_combined_frames(windowName, dimensions, frames)
@@ -141,7 +118,6 @@ def finish(caps=None, ok=True):
 	if (caps):
 		for cap in caps:
 			if (cap):
-				# cap.release()
 				cap.stop()
 	cv2.destroyAllWindows()
 	quit(ok)
@@ -152,40 +128,3 @@ if (__name__=="__main__"):
 	args = parse_args()
 	files = get_files(*args._get_kwargs())
 	play_videos(files, (args.w, args.h))
-
-	# fvs = FileVideoStream("D:/test.webm").start()
-	# time.sleep(0.5)
-
-	# start the FPS timer
-	# fps = FPS().start()
-
-	# loop over frames from the video file stream
-	# lastFrame = time.time()
-	# while fvs.more():
-	# 	# grab the frame from the threaded video file stream, resize
-	# 	# it, and convert it to grayscale (while still retaining 3
-	# 	# channels)
-	# 	if ((time.time() - lastFrame) < fvs.frameTime):
-	# 		continue
-	# 	frame = fvs.read()
-	# 	lastFrame = time.time()
-
-	# 	# frame = imutils.resize(frame, width=450)
-
-	# 	# display the size of the queue on the frame
-	# 	cv2.putText(frame, "Queue Size: {}".format(fvs.Q.qsize()),
-	# 		(10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-
-	# 	# show the frame and update the FPS counter
-	# 	cv2.imshow("Frame", frame)
-	# 	cv2.waitKey(1)
-	# 	fps.update()
-
-	# stop the timer and display FPS information
-	# fps.stop()
-	# print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-	# print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-
-	# do a bit of cleanup
-	# cv2.destroyAllWindows()
-	# fvs.stop()
