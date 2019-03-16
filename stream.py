@@ -2,13 +2,15 @@
 from threading import Thread
 import cv2
 from queue import Queue
+from PIL import Image, ImageOps
 
 #===================================================================================================
 class FileVideoStream:
 	#-----------------------------------------------------------------------------------------------
-	def __init__(self, path, queueSize=128, loop=False):
+	def __init__(self, path, targetSize, queueSize=128, loop=False):
 		# Initialize the file video stream and the boolean indicator for stopping the thread
 		self.path = path
+		self.targetSize = targetSize
 		self.loop = loop
 		self.stream = cv2.VideoCapture(path)
 		self.fps = self.stream.get(cv2.CAP_PROP_FPS)
@@ -39,10 +41,13 @@ class FileVideoStream:
 				if not (grabbed):
 					if (self.loop):
 						self.reset()
+						continue
 					else:
 						self.stop()
 						return
 			# Add the frame to the queue
+			frame = Image.fromarray(frame)
+			frame = ImageOps.fit(frame, self.targetSize, method=Image.LANCZOS)
 			self.Q.put(frame)
 
 	#-----------------------------------------------------------------------------------------------

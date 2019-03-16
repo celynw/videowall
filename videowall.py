@@ -8,7 +8,7 @@ import sys
 import time
 import cv2
 from screeninfo import get_monitors
-from PIL import Image, ImageOps
+from PIL import Image
 import numpy as np
 from random import shuffle
 
@@ -47,6 +47,9 @@ def play_videos(files, dimensions):
 	window = cv2.namedWindow(windowName, cv2.WND_PROP_FULLSCREEN)
 	cv2.setWindowProperty(windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
+	m = get_monitors()[0]
+	targetSize = (m.width // dimensions[0], m.height // dimensions[1])
+
 	while True:
 		# Randomise on each iteration
 		shuffle(files)
@@ -55,7 +58,7 @@ def play_videos(files, dimensions):
 		lastFrames = [time.time()] * len(caps)
 
 		for i in range(0, min(len(files), len(caps))):
-			caps[i] = FileVideoStream(str(files[i]), queueSize=800, loop=True).start()
+			caps[i] = FileVideoStream(str(files[i]), targetSize, queueSize=800, loop=True).start()
 		time.sleep(1)
 
 		while True:
@@ -82,22 +85,11 @@ def play_videos(files, dimensions):
 #===================================================================================================
 def show_combined_frames(windowName, dimensions, frames):
 	"""
-	Scale/crop frames so they all match exactly.
+	Combine frames of same dimensions into a grid.
 	Will run on main display.
 	"""
-	# TODO run once only
-	m = get_monitors()[0]
-	desktopSize = (m.width, m.height)
 
-	targetW = desktopSize[0] // dimensions[0]
-	targetH = desktopSize[1] // dimensions[1]
-
-	imgs = [None] * len(frames)
-	for i, frame in enumerate(frames):
-		img = Image.fromarray(frame)
-		imgs[i] = ImageOps.fit(img, (targetW, targetH), method=Image.LANCZOS)
-
-	layout = list(chunks(imgs, dimensions[0]))
+	layout = list(chunks(frames, dimensions[0]))
 
 	rows = [None] * dimensions[1]
 	for i, row in enumerate(layout):
