@@ -6,8 +6,10 @@ from queue import Queue
 #===================================================================================================
 class FileVideoStream:
 	#-----------------------------------------------------------------------------------------------
-	def __init__(self, path, queueSize=128):
+	def __init__(self, path, queueSize=128, loop=False):
 		# Initialize the file video stream and the boolean indicator for stopping the thread
+		self.path = path
+		self.loop = loop
 		self.stream = cv2.VideoCapture(path)
 		self.fps = self.stream.get(cv2.CAP_PROP_FPS)
 		self.frameTime = 1.0 / self.fps
@@ -35,8 +37,11 @@ class FileVideoStream:
 				(grabbed, frame) = self.stream.read()
 				# If the 'grabbed' boolean is False, then we have reached the end of the video file
 				if not (grabbed):
-					self.stop()
-					return
+					if (self.loop):
+						self.reset()
+					else:
+						self.stop()
+						return
 			# Add the frame to the queue
 			self.Q.put(frame)
 
@@ -54,6 +59,10 @@ class FileVideoStream:
 	def stop(self):
 		# Indicate that the thread should be stopped
 		self.stopped = True
+
+	#-----------------------------------------------------------------------------------------------
+	def reset(self):
+		self.stream = cv2.VideoCapture(self.path)
 
 
 #===================================================================================================

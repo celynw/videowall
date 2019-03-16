@@ -55,7 +55,7 @@ def play_videos(files, dimensions):
 		lastFrames = [time.time()] * len(caps)
 
 		for i in range(0, min(len(files), len(caps))):
-			caps[i] = FileVideoStream(str(files[i]), queueSize=800).start()
+			caps[i] = FileVideoStream(str(files[i]), queueSize=800, loop=True).start()
 		time.sleep(1)
 
 		while True:
