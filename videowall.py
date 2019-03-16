@@ -5,6 +5,7 @@ import cv2
 from screeninfo import get_monitors
 from PIL import Image, ImageOps
 import numpy as np
+from random import shuffle
 
 #===================================================================================================
 def parse_args():
@@ -37,6 +38,11 @@ def get_files(*args):
 
 #===================================================================================================
 def play_videos(files, dimensions):
+	# Randomise
+	numToLoad = min(len(files), (args.w * args.h))
+	files = files[:numToLoad]
+	shuffle(files)
+
 	windowName = "Video Wall"
 	window = cv2.namedWindow(windowName, cv2.WND_PROP_FULLSCREEN)
 	cv2.setWindowProperty(windowName, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -98,6 +104,4 @@ def chunks(list, numElements):
 if (__name__=="__main__"):
 	args = parse_args()
 	files = get_files(*args._get_kwargs())
-	numToLoad = min(len(files), (args.w * args.h))
-	files = files[:numToLoad]
 	play_videos(files, (args.w, args.h))
