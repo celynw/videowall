@@ -54,7 +54,7 @@ def play_videos(files, dimensions):
 		# Randomise on each iteration
 		shuffle(files)
 		caps = [None] * (dimensions[0] * dimensions[1])
-		frames = [None] * len(caps)
+		frames = [Image.new("RGB", (targetSize[0], targetSize[1]))] * len(caps)
 		lastFrames = [time.time()] * len(caps)
 
 		for i in range(0, min(len(files), len(caps))):
@@ -69,8 +69,6 @@ def play_videos(files, dimensions):
 							continue
 						frames[i] = cap.read()
 						lastFrames[i] = time.time()
-			# TODO replace with range
-			frames = [np.zeros((1920, 1080, 3), dtype="uint8") if frame is None else frame for frame in frames]
 			show_combined_frames(windowName, dimensions, frames)
 
 			key = cv2.waitKey(1)
