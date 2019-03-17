@@ -77,6 +77,7 @@ def play_videos(files, dimensions):
 			if (key == ord('q')):
 				finish(caps)
 			elif (key == ord('r')):
+				stop_caps(caps)
 				break
 
 	finish(ok=False)
@@ -106,11 +107,16 @@ def chunks(list, numElements):
 
 
 #===================================================================================================
+def stop_caps(caps):
+	for cap in caps:
+		if (cap):
+			cap.stop()
+
+
+#===================================================================================================
 def finish(caps=None, ok=True):
 	if (caps):
-		for cap in caps:
-			if (cap):
-				cap.stop()
+		stop_caps(caps)
 	cv2.destroyAllWindows()
 	quit(ok)
 
