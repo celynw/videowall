@@ -18,14 +18,17 @@ class Frame():
 		self.videoPlayer.video_set_mouse_input(True)
 		self.videoPlayer.video_set_key_input(True)
 		# self.videoPlayer.audio_set_mute(True)
-		self.videoPlayer.set_media(self.vlcInstance.media_new(str(path)))
-		if sys.platform.startswith('linux'): # for Linux using the X Server
+		if sys.platform.startswith('linux'): # Linux (X)
 			self.videoPlayer.set_xwindow(self.videoFrame.winId())
-		elif sys.platform == "win32": # for Windows
+		elif sys.platform == "win32": # Windows
 			self.videoPlayer.set_hwnd(self.videoFrame.winId())
-		elif sys.platform == "darwin": # for MacOS
+		elif sys.platform == "darwin": # OSX
 			self.videoPlayer.set_nsobject(int(self.videoFrame.winId()))
+		self.load(path)
 
+	#-----------------------------------------------------------------------------------------------
+	def load(self, path):
+		self.videoPlayer.set_media(self.vlcInstance.media_new(str(path)))
 		self.videoPlayer.play()
 
 
@@ -36,7 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
 	#-----------------------------------------------------------------------------------------------
 	def __init__(self, files, size, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		shuffle(files)
+		self.files = files
 		self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 		self.move(0, 0)
 		self.resize(1920, 1080)
@@ -48,14 +51,15 @@ class MainWindow(QtWidgets.QMainWindow):
 		layout.setSpacing(0)
 
 		self.frames = []
+		shuffle(self.files)
 		file = 0
 		for row in range(size[1]):
 			layoutRow = QtWidgets.QHBoxLayout()
 			layoutRow.setContentsMargins(0, 0, 0, 0)
 			for col in range(size[0]):
 				file += 1
-				if (file < len(files)):
-					self.frames.append(Frame(layoutRow, files[file]))
+				if (file < len(self.files)):
+					self.frames.append(Frame(layoutRow, self.files[file]))
 			layout.addLayout(layoutRow)
 		mainFrame.setLayout(layout)
 		self.keyPressed.connect(self.on_key)
@@ -69,14 +73,26 @@ class MainWindow(QtWidgets.QMainWindow):
 	#-----------------------------------------------------------------------------------------------
 	def on_key(self, key):
 		if (key == QtCore.Qt.Key_Escape) or (key == QtCore.Qt.Key_Q):
+			# FIX Alt-F4 closes final sub-window. Focus parent first
 			# app.quit(0)
 			QtCore.QCoreApplication.quit()
 		elif (key == QtCore.Qt.Key_Space):
 			self.paused = not self.paused
 			for frame in self.frames:
 				frame.videoPlayer.set_pause(self.paused)
+		elif (key == QtCore.Qt.Key_R):
+			self.reshuffle()
 		else:
 			print(f"Key pressed: {key}")
+
+	#-----------------------------------------------------------------------------------------------
+	def reshuffle(self):
+		shuffle(self.files)
+		file = 0
+		for frame in self.frames:
+			file += 1
+			if (file < len(self.files)):
+				frame.load(self.files[file])
 
 
 #===================================================================================================
