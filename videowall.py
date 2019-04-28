@@ -31,6 +31,7 @@ class Frame():
 
 #===================================================================================================
 class MainWindow(QtWidgets.QMainWindow):
+	keyPressed = QtCore.pyqtSignal(int)
 	#-----------------------------------------------------------------------------------------------
 	def __init__(self, files, size, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -39,8 +40,8 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.move(0, 0)
 		self.resize(1920, 1080)
 		self.show()
-		self.mainFrame = QtWidgets.QFrame()
-		self.setCentralWidget(self.mainFrame)
+		mainFrame = QtWidgets.QFrame()
+		self.setCentralWidget(mainFrame)
 		layout = QtWidgets.QVBoxLayout()
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.setSpacing(0)
@@ -54,8 +55,22 @@ class MainWindow(QtWidgets.QMainWindow):
 				if (file < len(files)):
 					Frame(layoutRow, files[file])
 			layout.addLayout(layoutRow)
-		self.mainFrame.setLayout(layout)
+		mainFrame.setLayout(layout)
+		self.keyPressed.connect(self.on_key)
 		self.show()
+
+	#-----------------------------------------------------------------------------------------------
+	def keyPressEvent(self, event):
+		super().keyPressEvent(event)
+		self.keyPressed.emit(event.key())
+
+	#-----------------------------------------------------------------------------------------------
+	def on_key(self, key):
+		if (key == QtCore.Qt.Key_Escape) or (key == QtCore.Qt.Key_Q):
+			# app.quit(0)
+			QtCore.QCoreApplication.quit()
+		else:
+			print(f"Key pressed: {key}")
 
 
 #===================================================================================================
