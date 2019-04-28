@@ -118,4 +118,9 @@ if (__name__ == "__main__"):
 	app = QtWidgets.QApplication([])
 	app.setApplicationName("Video Wall")
 	window = MainWindow(files, (args.w, args.h))
-	app.exec_()
+
+	timer = QtCore.QTimer()
+	timer.timeout.connect(lambda: None)
+	timer.start(100)
+
+	sys.exit(app.exec_())
