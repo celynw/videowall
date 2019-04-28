@@ -32,6 +32,7 @@ class Frame():
 #===================================================================================================
 class MainWindow(QtWidgets.QMainWindow):
 	keyPressed = QtCore.pyqtSignal(int)
+	paused = False
 	#-----------------------------------------------------------------------------------------------
 	def __init__(self, files, size, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -46,6 +47,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.setSpacing(0)
 
+		self.frames = []
 		file = 0
 		for row in range(size[1]):
 			layoutRow = QtWidgets.QHBoxLayout()
@@ -53,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			for col in range(size[0]):
 				file += 1
 				if (file < len(files)):
-					Frame(layoutRow, files[file])
+					self.frames.append(Frame(layoutRow, files[file]))
 			layout.addLayout(layoutRow)
 		mainFrame.setLayout(layout)
 		self.keyPressed.connect(self.on_key)
@@ -69,6 +71,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		if (key == QtCore.Qt.Key_Escape) or (key == QtCore.Qt.Key_Q):
 			# app.quit(0)
 			QtCore.QCoreApplication.quit()
+		elif (key == QtCore.Qt.Key_Space):
+			self.paused = not self.paused
+			for frame in self.frames:
+				frame.videoPlayer.set_pause(self.paused)
 		else:
 			print(f"Key pressed: {key}")
 
