@@ -9,14 +9,14 @@ import vlc
 #===================================================================================================
 class Frame():
 	#-----------------------------------------------------------------------------------------------
-	def __init__(self, widgetParent, path):
+	def __init__(self, widgetParent, mousePressEvent, path):
 		self.videoFrame = QtWidgets.QFrame()
 		widgetParent.addWidget(self.videoFrame)
 		# Cannot loop indefinitely (e.g. =-1)
 		self.vlcInstance = vlc.Instance(['--video-on-top', "--input-repeat=65535"])
 		self.videoPlayer = self.vlcInstance.media_player_new()
-		self.videoPlayer.video_set_mouse_input(True)
-		self.videoPlayer.video_set_key_input(True)
+		self.videoPlayer.video_set_mouse_input(False)
+		self.videoPlayer.video_set_key_input(False)
 		# self.videoPlayer.audio_set_mute(True)
 		if sys.platform.startswith('linux'): # Linux (X)
 			self.videoPlayer.set_xwindow(self.videoFrame.winId())
@@ -24,6 +24,7 @@ class Frame():
 			self.videoPlayer.set_hwnd(self.videoFrame.winId())
 		elif sys.platform == "darwin": # OSX
 			self.videoPlayer.set_nsobject(int(self.videoFrame.winId()))
+		self.videoFrame.mousePressEvent = lambda event: mousePressEvent(event, self)
 		self.load(path)
 
 	#-----------------------------------------------------------------------------------------------
@@ -51,6 +52,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		layout.setSpacing(0)
 
 		self.frames = []
+		# TODO merge duplicate code
 		shuffle(self.files)
 		file = 0
 		for row in range(size[1]):
@@ -59,7 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			for col in range(size[0]):
 				file += 1
 				if (file < len(self.files)):
-					self.frames.append(Frame(layoutRow, self.files[file]))
+					self.frames.append(Frame(layoutRow, self.mousePressEvent, self.files[file]))
 			layout.addLayout(layoutRow)
 		mainFrame.setLayout(layout)
 		self.keyPressed.connect(self.on_key)
@@ -69,6 +71,12 @@ class MainWindow(QtWidgets.QMainWindow):
 	def keyPressEvent(self, event):
 		super().keyPressEvent(event)
 		self.keyPressed.emit(event.key())
+
+	#-----------------------------------------------------------------------------------------------
+	def mousePressEvent(self, event, player):
+		if (event.button() == QtCore.Qt.LeftButton):
+			shuffle(self.files)
+			player.load(self.files[0])
 
 	#-----------------------------------------------------------------------------------------------
 	def on_key(self, key):
@@ -87,6 +95,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	#-----------------------------------------------------------------------------------------------
 	def reshuffle(self):
+		# TODO merge duplicate code
 		shuffle(self.files)
 		file = 0
 		for frame in self.frames:
@@ -99,7 +108,7 @@ class MainWindow(QtWidgets.QMainWindow):
 def get_files(*args):
 	args = dict(args)
 	root = Path(args["root"])
-	if not root.exists():
+	if not (root.exists()):
 		print(f"Directory '{root}' not found")
 		quit(1)
 
@@ -111,6 +120,10 @@ def get_files(*args):
 	for filetype in filetypes:
 		files = root.glob(filetype)
 		allFiles.extend(files)
+
+	if (len(allFiles) == 0):
+		print(f"No compatible video files found in '{root}'")
+		quit(1)
 
 	return allFiles
 
