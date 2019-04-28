@@ -9,10 +9,9 @@ import vlc
 #===================================================================================================
 class Frame():
 	#-----------------------------------------------------------------------------------------------
-	def __init__(self, widgetParent, mouseDoubleClickEvent, path):
+	def __init__(self, widgetParent, path):
 		self.videoFrame = QtWidgets.QFrame()
 		widgetParent.addWidget(self.videoFrame)
-		self.videoFrame.mouseDoubleClickEvent = mouseDoubleClickEvent
 		# Cannot loop indefinitely (e.g. =-1)
 		self.vlcInstance = vlc.Instance(['--video-on-top', "--input-repeat=65535"])
 		self.videoPlayer = self.vlcInstance.media_player_new()
@@ -53,32 +52,10 @@ class MainWindow(QtWidgets.QMainWindow):
 			for col in range(size[0]):
 				file += 1
 				if (file < len(files)):
-					Frame(layoutRow, self.mouseDoubleClickEvent, files[file])
+					Frame(layoutRow, files[file])
 			layout.addLayout(layoutRow)
 		self.mainFrame.setLayout(layout)
 		self.show()
-
-	#-----------------------------------------------------------------------------------------------
-	def mouseDoubleClickEvent(self, event):
-		if event.button() == Qt.LeftButton:
-			if self.windowState() == Qt.WindowNoState:
-				self.videoFrame1.hide()
-				self.videoFrame.show()
-				self.setWindowState(Qt.WindowFullScreen)
-			else:
-				self.videoFrame1.show()
-				self.setWindowState(Qt.WindowNoState)
-
-	#-----------------------------------------------------------------------------------------------
-	def mouseDoubleClickEvent1(self, event):
-		if event.button() == Qt.LeftButton:
-			if self.windowState() == Qt.WindowNoState:
-				self.videoFrame.hide()
-				self.videoFrame1.show()
-				self.setWindowState(Qt.WindowFullScreen)
-			else:
-				self.videoFrame.show()
-				self.setWindowState(Qt.WindowNoState)
 
 
 #===================================================================================================
