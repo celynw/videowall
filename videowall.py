@@ -25,12 +25,20 @@ class Frame():
 		elif sys.platform == "darwin": # OSX
 			self.videoPlayer.set_nsobject(int(self.videoFrame.winId()))
 		self.videoFrame.mousePressEvent = lambda event: mousePressEvent(event, self)
+		self.videoFrame.wheelEvent = self.wheelEvent
 		self.load(path)
 
 	#-----------------------------------------------------------------------------------------------
 	def load(self, path):
 		self.videoPlayer.set_media(self.vlcInstance.media_new(str(path)))
 		self.videoPlayer.play()
+
+	#-----------------------------------------------------------------------------------------------
+	def wheelEvent(self, event):
+		pos = self.videoPlayer.get_position()
+		scale = -0.0001
+		newPos = pos + event.angleDelta().y() * scale
+		self.videoPlayer.set_position(newPos) # Cannot seem to set precise flag (False)
 
 
 #===================================================================================================
@@ -136,8 +144,8 @@ def get_files(*args):
 def parse_args():
 	parser = ArgumentParser()
 	parser.add_argument("root", metavar="directory", help="Root folder where the videos are stored")
-	parser.add_argument("w", metavar="width", type=int, help="Number of video columns to use")
-	parser.add_argument("h", metavar="height", type=int, help="Number of video rows to use")
+	parser.add_argument('w', metavar="width", type=int, help="Number of video columns to use")
+	parser.add_argument('h', metavar="height", type=int, help="Number of video rows to use")
 	args = parser.parse_args()
 	return args
 
