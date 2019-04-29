@@ -106,6 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 #===================================================================================================
 def get_files(*args):
+	print("Recursively finding files...")
 	args = dict(args)
 	root = Path(args["root"])
 	if not (root.exists()):
@@ -113,8 +114,10 @@ def get_files(*args):
 		quit(1)
 
 	filetypes = [
-		"*.mp4",
-		"*.webm"
+		"**/*.mp4",
+		"**/*.webm",
+		# "**/*.flv", # Not working
+		# "**/*.gif", # Stills only
 	]
 	allFiles = []
 	for filetype in filetypes:
@@ -125,6 +128,7 @@ def get_files(*args):
 		print(f"No compatible video files found in '{root}'")
 		quit(1)
 
+	print(f"Found {len(allFiles)} files")
 	return allFiles
 
 
