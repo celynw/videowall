@@ -50,7 +50,9 @@ class MainWindow(QtWidgets.QMainWindow):
 		super().__init__(*args, **kwargs)
 		self.files = files
 		self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
-		self.move(0, 0)
+		screenNum = QtWidgets.QApplication.desktop().screenNumber(QtWidgets.QApplication.desktop().cursor().pos())
+		geometry = QtWidgets.QApplication.desktop().screenGeometry(screenNum)
+		self.move(geometry.left(), geometry.top())
 		self.resize(*resolution)
 		self.show()
 		mainFrame = QtWidgets.QFrame()
