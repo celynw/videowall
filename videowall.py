@@ -46,11 +46,12 @@ class MainWindow(QtWidgets.QMainWindow):
 	keyPressed = QtCore.pyqtSignal(int)
 	paused = False
 	# ----------------------------------------------------------------------------------------------
+	def __init__(self, files, size, resolution, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.files = files
 		self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 		self.move(0, 0)
-		self.resize(1920, 1080)
+		self.resize(*resolution)
 		self.show()
 		mainFrame = QtWidgets.QFrame()
 		self.setCentralWidget(mainFrame)
@@ -144,6 +145,8 @@ def parse_args():
 	parser.add_argument("root", metavar="directory", help="Root folder where the videos are stored")
 	parser.add_argument('w', metavar="width", type=int, help="Number of video columns to use")
 	parser.add_argument('h', metavar="height", type=int, help="Number of video rows to use")
+	parser.add_argument('ww', metavar="window width", type=int, nargs="?", default=1920, help="Window width")
+	parser.add_argument('hh', metavar="window height", type=int, nargs="?", default=1080, help="Window height")
 	args = parser.parse_args()
 	args.root = Path(args.root)
 
@@ -156,7 +159,7 @@ if __name__ == "__main__":
 	files = get_files(args)
 	app = QtWidgets.QApplication([])
 	app.setApplicationName("Video Wall")
-	window = MainWindow(files, (args.w, args.h))
+	window = MainWindow(files, (args.w, args.h), (args.ww, args.hh))
 
 	timer = QtCore.QTimer()
 	timer.timeout.connect(lambda: None)
