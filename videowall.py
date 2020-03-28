@@ -119,22 +119,22 @@ def get_files(args):
 		quit(1)
 
 	filetypes = [
-		"**/*.mp4",
-		"**/*.webm",
-		"**/*.mkv",
+		"*.mp4",
+		"*.webm",
+		"*.mkv",
 		# "**/*.flv", # Not working
 		# "**/*.gif", # Stills only
 	]
 	allFiles = []
 	for filetype in filetypes:
-		files = args.root.glob(filetype)
+		files = args.root.rglob(filetype)
 		allFiles.extend(files)
 
-	if (len(allFiles) == 0):
+	if len(allFiles) == 0:
 		print(f"No compatible video files found in '{root}'")
 		quit(1)
-
 	print(f"Found {len(allFiles)} files")
+
 	return allFiles
 
 
