@@ -6,9 +6,9 @@ from random import shuffle
 import sys
 import vlc
 
-#===================================================================================================
+# ==================================================================================================
 class Frame():
-	#-----------------------------------------------------------------------------------------------
+	# ----------------------------------------------------------------------------------------------
 	def __init__(self, widgetParent, mousePressEvent, path):
 		self.videoFrame = QtWidgets.QFrame()
 		widgetParent.addWidget(self.videoFrame)
@@ -28,12 +28,12 @@ class Frame():
 		self.videoFrame.wheelEvent = self.wheelEvent
 		self.load(path)
 
-	#-----------------------------------------------------------------------------------------------
+	# ----------------------------------------------------------------------------------------------
 	def load(self, path):
 		self.videoPlayer.set_media(self.vlcInstance.media_new(str(path)))
 		self.videoPlayer.play()
 
-	#-----------------------------------------------------------------------------------------------
+	# ----------------------------------------------------------------------------------------------
 	def wheelEvent(self, event):
 		pos = self.videoPlayer.get_position()
 		scale = -0.0001
@@ -41,12 +41,11 @@ class Frame():
 		self.videoPlayer.set_position(newPos) # Cannot seem to set precise flag (False)
 
 
-#===================================================================================================
+# ==================================================================================================
 class MainWindow(QtWidgets.QMainWindow):
 	keyPressed = QtCore.pyqtSignal(int)
 	paused = False
-	#-----------------------------------------------------------------------------------------------
-	def __init__(self, files, size, *args, **kwargs):
+	# ----------------------------------------------------------------------------------------------
 		super().__init__(*args, **kwargs)
 		self.files = files
 		self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -75,18 +74,18 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.keyPressed.connect(self.on_key)
 		self.show()
 
-	#-----------------------------------------------------------------------------------------------
+	# ----------------------------------------------------------------------------------------------
 	def keyPressEvent(self, event):
 		super().keyPressEvent(event)
 		self.keyPressed.emit(event.key())
 
-	#-----------------------------------------------------------------------------------------------
+	# ----------------------------------------------------------------------------------------------
 	def mousePressEvent(self, event, player):
 		if (event.button() == QtCore.Qt.LeftButton):
 			shuffle(self.files)
 			player.load(self.files[0])
 
-	#-----------------------------------------------------------------------------------------------
+	# ----------------------------------------------------------------------------------------------
 	def on_key(self, key):
 		if (key == QtCore.Qt.Key_Escape) or (key == QtCore.Qt.Key_Q):
 			# FIX Alt-F4 closes final sub-window. Focus parent first
@@ -101,7 +100,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		else:
 			print(f"Key pressed: {key}")
 
-	#-----------------------------------------------------------------------------------------------
+	# ----------------------------------------------------------------------------------------------
 	def reshuffle(self):
 		# TODO merge duplicate code
 		shuffle(self.files)
@@ -112,7 +111,7 @@ class MainWindow(QtWidgets.QMainWindow):
 				frame.load(self.files[file])
 
 
-#===================================================================================================
+# ==================================================================================================
 def get_files(*args):
 	print("Recursively finding files...")
 	args = dict(args)
@@ -140,18 +139,19 @@ def get_files(*args):
 	return allFiles
 
 
-#===================================================================================================
+# ==================================================================================================
 def parse_args():
 	parser = ArgumentParser()
 	parser.add_argument("root", metavar="directory", help="Root folder where the videos are stored")
 	parser.add_argument('w', metavar="width", type=int, help="Number of video columns to use")
 	parser.add_argument('h', metavar="height", type=int, help="Number of video rows to use")
 	args = parser.parse_args()
+
 	return args
 
 
-#===================================================================================================
-if (__name__ == "__main__"):
+# ==================================================================================================
+if __name__ == "__main__":
 	args = parse_args()
 	files = get_files(*args._get_kwargs())
 	app = QtWidgets.QApplication([])
