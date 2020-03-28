@@ -112,23 +112,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
 # ==================================================================================================
-def get_files(*args):
+def get_files(args):
 	print("Recursively finding files...")
-	args = dict(args)
-	root = Path(args["root"])
-	if not (root.exists()):
-		print(f"Directory '{root}' not found")
+	if not args.root.exists():
+		print(f"Directory '{args.root}' not found")
 		quit(1)
 
 	filetypes = [
 		"**/*.mp4",
 		"**/*.webm",
+		"**/*.mkv",
 		# "**/*.flv", # Not working
 		# "**/*.gif", # Stills only
 	]
 	allFiles = []
 	for filetype in filetypes:
-		files = root.glob(filetype)
+		files = args.root.glob(filetype)
 		allFiles.extend(files)
 
 	if (len(allFiles) == 0):
@@ -146,6 +145,7 @@ def parse_args():
 	parser.add_argument('w', metavar="width", type=int, help="Number of video columns to use")
 	parser.add_argument('h', metavar="height", type=int, help="Number of video rows to use")
 	args = parser.parse_args()
+	args.root = Path(args.root)
 
 	return args
 
@@ -153,7 +153,7 @@ def parse_args():
 # ==================================================================================================
 if __name__ == "__main__":
 	args = parse_args()
-	files = get_files(*args._get_kwargs())
+	files = get_files(args)
 	app = QtWidgets.QApplication([])
 	app.setApplicationName("Video Wall")
 	window = MainWindow(files, (args.w, args.h))
