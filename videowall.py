@@ -70,7 +70,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			layoutRow.setContentsMargins(0, 0, 0, 0)
 			for col in range(size[0]):
 				file += 1
-				if (file < len(self.files)):
+				if file < len(self.files):
 					self.frames.append(Frame(layoutRow, self.mousePressEvent, self.files[file]))
 			layout.addLayout(layoutRow)
 		mainFrame.setLayout(layout)
@@ -84,21 +84,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
 	# ----------------------------------------------------------------------------------------------
 	def mousePressEvent(self, event, player):
-		if (event.button() == QtCore.Qt.LeftButton):
+		if event.button() == QtCore.Qt.LeftButton:
 			shuffle(self.files)
 			player.load(self.files[0])
 
 	# ----------------------------------------------------------------------------------------------
 	def on_key(self, key):
-		if (key == QtCore.Qt.Key_Escape) or (key == QtCore.Qt.Key_Q):
+		if key == QtCore.Qt.Key_Escape or key == QtCore.Qt.Key_Q:
 			# FIX Alt-F4 closes final sub-window. Focus parent first
 			# app.quit(0)
 			QtCore.QCoreApplication.quit()
-		elif (key == QtCore.Qt.Key_Space):
+		elif key == QtCore.Qt.Key_Space:
 			self.paused = not self.paused
 			for frame in self.frames:
 				frame.videoPlayer.set_pause(self.paused)
-		elif (key == QtCore.Qt.Key_R):
+		elif key == QtCore.Qt.Key_R:
 			self.reshuffle()
 		else:
 			print(f"Key pressed: {key}")
@@ -110,7 +110,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		file = 0
 		for frame in self.frames:
 			file += 1
-			if (file < len(self.files)):
+			if file < len(self.files):
 				frame.load(self.files[file])
 
 
